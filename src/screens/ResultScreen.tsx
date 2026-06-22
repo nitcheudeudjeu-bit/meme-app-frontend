@@ -1,30 +1,59 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView, SafeAreaView, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  ScrollView,
+  SafeAreaView,
+  Image,
+} from 'react-native';
+import { useRoute } from '@react-navigation/native';
 
 export default function ResultScreen(): React.JSX.Element {
-  const [topText, setTopText] = useState<string>('QUAND MON CODE COMPILE');
-  const [bottomText, setBottomText] = useState<string>('DU PREMIER COUP');
+  const route = useRoute<any>(); // Hook pour intercepter les paramètres de navigation
+
+  // Image par défaut si l'écran est ouvert sans génération préalable
+  const defaultImage = 'https://unsplash.com';
+  
+  const [imageUrl, setImageUrl] = useState<string>(defaultImage);
+  const [topText, setTopText] = useState<string>('TEXTE SUPÉRIEUR');
+  const [bottomText, setBottomText] = useState<string>('TEXTE INFÉRIEUR');
+
+  // L'écouteur useEffect se déclenche dès que l'écran reçoit de nouveaux paramètres de l'IA
+  useEffect(() => {
+    if (route.params) {
+      if (route.params.imageUrl) setImageUrl(route.params.imageUrl);
+      if (route.params.aiTextTop) setTopText(route.params.aiTextTop);
+      if (route.params.aiTextBottom) setBottomText(route.params.aiTextBottom);
+    }
+  }, [route.params]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
+        
         <Text style={styles.title}>Laboratoire du Mème</Text>
-        <Text style={styles.subtitle}>Visualisez et modifiez le mème généré</Text>
+        <Text style={styles.subtitle}>Le résultat généré par l'Intelligence Artificielle</Text>
+
+        {/* AFFICHAGE DE L'IMAGE IA ET DU TEXTE DYNAMIQUE */}
         <View style={styles.memeContainer}>
-          <Image
-            source={{ uri: 'https://unsplash.com' }}
-            style={styles.memeImage}
-          />
+          <Image source={{ uri: imageUrl }} style={styles.memeImage} />
           <Text style={[styles.memeText, styles.topMemeText]}>{topText.toUpperCase()}</Text>
           <Text style={[styles.memeText, styles.bottomMemeText]}>{bottomText.toUpperCase()}</Text>
         </View>
+
+        {/* FORMULAIRE DE MODIFICATION */}
         <View style={styles.editCard}>
-          <Text style={styles.cardTitle}>✍️ Ajuster les textes</Text>
-          <Text style={styles.label}>Texte supérieur</Text>
+          <Text style={styles.cardTitle}>✍️ Ajuster les légendes de l'IA</Text>
+          
+          <Text style={styles.label}>Modifier le haut</Text>
           <TextInput style={styles.input} value={topText} onChangeText={setTopText} placeholderTextColor="#666" />
-          <Text style={styles.label}>Texte inférieur</Text>
+
+          <Text style={styles.label}>Modifier le bas</Text>
           <TextInput style={styles.input} value={bottomText} onChangeText={setBottomText} placeholderTextColor="#666" />
         </View>
+
       </ScrollView>
     </SafeAreaView>
   );

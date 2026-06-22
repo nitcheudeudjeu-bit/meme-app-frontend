@@ -8,21 +8,16 @@ import {
   ScrollView,
   SafeAreaView,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 export default function HomeScreen(): React.JSX.Element {
+  const navigation = useNavigation<any>(); // Hook pour changer d'écran
   const [textContext, setTextContext] = useState<string>('');
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
-  // 💬 Fonction pour le Mode Texte (Context Reader)
-  const handleGenerateFromText = (): void => {
-    if (!textContext.trim()) {
-      Alert.alert("Attention", "Veuillez saisir un texte pour l'analyse de contexte.");
-      return;
-    }
-    Alert.alert("Context Reader ⚡", "Envoi du texte au serveur backend...");
-  };
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // 🎙️ Fonction pour le Mode Audio (Voice-to-Meme)
   const handleToggleRecording = (): void => {
@@ -31,20 +26,36 @@ export default function HomeScreen(): React.JSX.Element {
       console.log("Enregistrement audio démarré...");
     } else {
       setIsRecording(false);
-      Alert.alert("Voice-to-Meme 🎙️", "Audio capturé ! Prêt pour la transcription Speech-to-Text.");
+      Alert.alert("Voice-to-Meme 🎙️", "Audio capturé en mode simulation ! Prêt pour le Speech-to-Text.");
     }
   };
 
   // 🖼️ Fonction pour le Mode Image (Status Remixer)
   const handleSelectImage = (): void => {
-    // Cette fonction sera complétée par le membre chargé du traitement d'image
     setSelectedImage("chemin/vers/image_temporaire.jpg");
-    Alert.alert("Status Remixer 📸", "Image sélectionnée depuis la galerie !");
+    Alert.alert("Status Remixer 📸", "Image sélectionnée depuis la galerie (Simulation) !");
   };
 
-  // 🚀 Bouton central de génération globale
+  // 🚀 BOUTON GLOBAL : Simulation de la génération IA sans serveur backend
   const handleGlobalGenerate = (): void => {
-    Alert.alert("Générateur Multimodal", "Traitement global des données par l'IA...");
+    if (!textContext.trim() && !isRecording && !selectedImage) {
+      Alert.alert("Attention", "Veuillez remplir au moins une méthode d'entrée (Saisir un texte, enregistrer un audio ou choisir une image).");
+      return;
+    }
+
+    setIsLoading(true); // Démarre le rouet de chargement
+
+    // On simule une attente de 2 secondes (le temps que l'IA fictive génère le mème)
+    setTimeout(() => {
+      setIsLoading(false); // Arrête le chargement
+      
+      // Navigation automatique vers l'onglet Éditeur avec les données simulées
+      navigation.navigate('Éditeur', {
+        imageUrl: 'https://unsplash.com', // Image générée par l'IA
+        aiTextTop: "QUAND TOUT EST EN MODE SIMULATION",
+        aiTextBottom: "MAIS QUE ÇA FONCTIONNE PARFAITEMENT",
+      });
+    }, 2000);
   };
 
   return (
@@ -69,6 +80,7 @@ export default function HomeScreen(): React.JSX.Element {
             numberOfLines={4}
             value={textContext}
             onChangeText={setTextContext}
+            editable={!isLoading}
           />
         </View>
 
@@ -85,6 +97,7 @@ export default function HomeScreen(): React.JSX.Element {
           <TouchableOpacity 
             style={[styles.micButton, isRecording && styles.micButtonActive]} 
             onPress={handleToggleRecording}
+            disabled={isLoading}
           >
             <Text style={[styles.micButtonText, isRecording && styles.micButtonTextActive]}>
               {isRecording ? "🟢 Enregistrement... (Cliquez pour stopper)" : "🔴 Lancer l'enregistrement"}
@@ -102,16 +115,24 @@ export default function HomeScreen(): React.JSX.Element {
             Téléchargez une image pour lui ajouter du texte ou des modifications IA.
           </Text>
           
-          <TouchableOpacity style={styles.secondaryButton} onPress={handleSelectImage}>
+          <TouchableOpacity style={styles.secondaryButton} onPress={handleSelectImage} disabled={isLoading}>
             <Text style={styles.secondaryButtonText}>
               {selectedImage ? "✅ Image sélectionnée" : "📸 Importer depuis la galerie"}
             </Text>
           </TouchableOpacity>
         </View>
 
-        {/* BOUTON GLOBAL DE GÉNÉRATION */}
-        <TouchableOpacity style={styles.generateButton} onPress={handleGlobalGenerate}>
-          <Text style={styles.generateButtonText}>GÉNÉRER LE MÈME FINAL ⚡</Text>
+        {/* BOUTON GLOBAL DE GÉNÉRATION AVEC CHARGEMENT ANIMÉ */}
+        <TouchableOpacity 
+          style={[styles.generateButton, isLoading && styles.disabledButton]} 
+          onPress={handleGlobalGenerate}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <ActivityIndicator color="#121212" />
+          ) : (
+            <Text style={styles.generateButtonText}>GÉNÉRER LE MÈME FINAL ⚡</Text>
+          )}
         </TouchableOpacity>
 
       </ScrollView>
@@ -136,6 +157,7 @@ const styles = StyleSheet.create({
   micButtonText: { color: '#E53935', fontWeight: 'bold', fontSize: 15 },
   micButtonActive: { backgroundColor: '#1E3A1E', borderColor: '#00E676' },
   micButtonTextActive: { color: '#00E676' },
-  generateButton: { backgroundColor: '#00E676', paddingVertical: 16, borderRadius: 12, alignItems: 'center', marginTop: 10, elevation: 4 },
+  generateButton: { backgroundColor: '#00E676', paddingVertical: 16, borderRadius: 12, alignItems: 'center', marginTop: 10, minHeight: 55, justifyContent: 'center' },
+  disabledButton: { backgroundColor: '#00A353', opacity: 0.7 },
   generateButtonText: { color: '#121212', fontWeight: 'bold', fontSize: 16, letterSpacing: 1 },
 });
