@@ -13,123 +13,114 @@ import {
 import { useNavigation } from '@react-navigation/native';
 
 export default function HomeScreen(): React.JSX.Element {
-  const navigation = useNavigation<any>(); // Hook pour changer d'écran
+  const navigation = useNavigation<any>();
   const [textContext, setTextContext] = useState<string>('');
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // 🎙️ Fonction pour le Mode Audio (Voice-to-Meme)
   const handleToggleRecording = (): void => {
     if (!isRecording) {
       setIsRecording(true);
-      console.log("Enregistrement audio démarré...");
     } else {
       setIsRecording(false);
-      Alert.alert("Voice-to-Meme 🎙️", "Audio capturé en mode simulation ! Prêt pour le Speech-to-Text.");
+      Alert.alert("🎙️ Audio Capturé", "Prêt pour l'analyse.");
     }
   };
 
-  // 🖼️ Fonction pour le Mode Image (Status Remixer)
   const handleSelectImage = (): void => {
-    setSelectedImage("chemin/vers/image_temporaire.jpg");
-    Alert.alert("Status Remixer 📸", "Image sélectionnée depuis la galerie (Simulation) !");
+    setSelectedImage("image.jpg");
+    Alert.alert("📸 Image sélectionnée", "Prête pour le remix.");
   };
 
-  // 🚀 BOUTON GLOBAL : Simulation de la génération IA sans serveur backend
   const handleGlobalGenerate = (): void => {
     if (!textContext.trim() && !isRecording && !selectedImage) {
-      Alert.alert("Attention", "Veuillez remplir au moins une méthode d'entrée (Saisir un texte, enregistrer un audio ou choisir une image).");
+      Alert.alert("Attention", "Veuillez activer au moins une méthode d'entrée.");
       return;
     }
 
-    setIsLoading(true); // Démarre le rouet de chargement
-
-    // On simule une attente de 2 secondes (le temps que l'IA fictive génère le mème)
+    setIsLoading(true);
     setTimeout(() => {
-      setIsLoading(false); // Arrête le chargement
-      
-      // Navigation automatique vers l'onglet Éditeur avec les données simulées
+      setIsLoading(false);
       navigation.navigate('Éditeur', {
-        imageUrl: 'https://unsplash.com', // Image générée par l'IA
-        aiTextTop: "QUAND TOUT EST EN MODE SIMULATION",
-        aiTextBottom: "MAIS QUE ÇA FONCTIONNE PARFAITEMENT",
+        imageUrl: 'https://unsplash.com',
+        aiTextTop: "QUAND LA REFONTE GRAPHIQUE",
+        aiTextBottom: "EST TOTALEMENT SURBOOSTÉE",
       });
-    }, 2000);
+    }, 2200);
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         
         <Text style={styles.title}>Générateur Multimodal</Text>
-        <Text style={styles.subtitle}>Sélectionnez votre méthode d'entrée pour créer un mème</Text>
+        <Text style={styles.subtitle}>Activez vos canaux d'entrée pour concevoir un mème par IA</Text>
 
-        {/* 1. SECTION CONTEXT READER (TEXTE) */}
+        {/* 1. TEXTE (CONTEXT READER) */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardEmoji}>💬</Text>
-            <Text style={styles.cardTitle}>Context Reader (Texte)</Text>
+            <View>
+              <Text style={styles.cardTitle}>Context Reader</Text>
+              <Text style={styles.cardMuted}>Analyse de texte contextuelle</Text>
+            </View>
           </View>
-          
           <TextInput
             style={styles.input}
-            placeholder="Saisissez ou collez un extrait de discussion ici..."
-            placeholderTextColor="#666"
+            placeholder="Collez ou saisissez un extrait de conversation..."
+            placeholderTextColor="#6d6a94"
             multiline
-            numberOfLines={4}
             value={textContext}
             onChangeText={setTextContext}
             editable={!isLoading}
           />
         </View>
 
-        {/* 2. SECTION VOICE-TO-MEME (AUDIO) */}
+        {/* 2. AUDIO (VOICE-TO-MEME) */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardEmoji}>🎙️</Text>
-            <Text style={styles.cardTitle}>Voice-to-Meme (Audio)</Text>
+            <View>
+              <Text style={styles.cardTitle}>Voice-to-Meme</Text>
+              <Text style={styles.cardMuted}>Transcription audio par IA</Text>
+            </View>
           </View>
-          <Text style={styles.cardDescription}>
-            Enregistrez un message vocal ou un extrait audio pour l'analyser.
-          </Text>
-          
           <TouchableOpacity 
             style={[styles.micButton, isRecording && styles.micButtonActive]} 
             onPress={handleToggleRecording}
             disabled={isLoading}
           >
             <Text style={[styles.micButtonText, isRecording && styles.micButtonTextActive]}>
-              {isRecording ? "🟢 Enregistrement... (Cliquez pour stopper)" : "🔴 Lancer l'enregistrement"}
+              {isRecording ? "🟢 Enregistrement actif (Stopper)" : "🎙️ Lancer le microphone"}
             </Text>
           </TouchableOpacity>
         </View>
 
-        {/* 3. SECTION STATUS REMIXER (IMAGE) */}
+        {/* 3. IMAGE (STATUS REMIXER) */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardEmoji}>🖼️</Text>
-            <Text style={styles.cardTitle}>Status Remixer (Image)</Text>
+            <View>
+              <Text style={styles.cardTitle}>Status Remixer</Text>
+              <Text style={styles.cardMuted}>Incrustation sur visuel existant</Text>
+            </View>
           </View>
-          <Text style={styles.cardDescription}>
-            Téléchargez une image pour lui ajouter du texte ou des modifications IA.
-          </Text>
-          
           <TouchableOpacity style={styles.secondaryButton} onPress={handleSelectImage} disabled={isLoading}>
             <Text style={styles.secondaryButtonText}>
-              {selectedImage ? "✅ Image sélectionnée" : "📸 Importer depuis la galerie"}
+              {selectedImage ? "✅ Média chargé avec succès" : "📸 Parcourir la galerie mobile"}
             </Text>
           </TouchableOpacity>
         </View>
 
-        {/* BOUTON GLOBAL DE GÉNÉRATION AVEC CHARGEMENT ANIMÉ */}
+        {/* BOUTON GLOBAL STYLE TIKKER/CYAN */}
         <TouchableOpacity 
           style={[styles.generateButton, isLoading && styles.disabledButton]} 
           onPress={handleGlobalGenerate}
           disabled={isLoading}
         >
           {isLoading ? (
-            <ActivityIndicator color="#121212" />
+            <ActivityIndicator color="#0d0d14" />
           ) : (
             <Text style={styles.generateButtonText}>GÉNÉRER LE MÈME FINAL ⚡</Text>
           )}
@@ -141,23 +132,23 @@ export default function HomeScreen(): React.JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#121212' },
+  safeArea: { flex: 1, backgroundColor: '#0d0d14' },
   container: { padding: 20, paddingBottom: 40 },
-  title: { fontSize: 26, fontWeight: 'bold', color: '#FFF', textAlign: 'center', marginTop: 10 },
-  subtitle: { fontSize: 14, color: '#AAA', textAlign: 'center', marginBottom: 25, marginTop: 5 },
-  card: { backgroundColor: '#1E1E1E', borderRadius: 12, padding: 16, marginBottom: 20, borderWidth: 1, borderColor: '#2D2D2D' },
-  cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
-  cardEmoji: { fontSize: 22, marginRight: 10 },
-  cardTitle: { fontSize: 18, fontWeight: 'bold', color: '#FFF' },
-  cardDescription: { color: '#AAA', fontSize: 14, marginBottom: 15 },
-  input: { backgroundColor: '#2A2A2A', color: '#FFF', borderRadius: 8, padding: 12, textAlignVertical: 'top', fontSize: 14, height: 90 },
-  secondaryButton: { backgroundColor: '#2A2A2A', paddingVertical: 12, borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: '#444' },
-  secondaryButtonText: { color: '#FFF', fontWeight: '600', fontSize: 14 },
-  micButton: { backgroundColor: '#3A1E1E', paddingVertical: 15, borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: '#E53935' },
-  micButtonText: { color: '#E53935', fontWeight: 'bold', fontSize: 15 },
-  micButtonActive: { backgroundColor: '#1E3A1E', borderColor: '#00E676' },
-  micButtonTextActive: { color: '#00E676' },
-  generateButton: { backgroundColor: '#00E676', paddingVertical: 16, borderRadius: 12, alignItems: 'center', marginTop: 10, minHeight: 55, justifyContent: 'center' },
-  disabledButton: { backgroundColor: '#00A353', opacity: 0.7 },
-  generateButtonText: { color: '#121212', fontWeight: 'bold', fontSize: 16, letterSpacing: 1 },
+  title: { fontSize: 28, fontWeight: '700', color: '#e8e6ff', textAlign: 'center', marginTop: 10, letterSpacing: -0.5 },
+  subtitle: { fontSize: 13, color: '#afa9ec', textAlign: 'center', marginBottom: 25, marginTop: 5, paddingHorizontal: 10 },
+  card: { backgroundColor: '#18182a', borderRadius: 16, padding: 18, marginBottom: 20, borderWidth: 1.5, borderColor: '#3c3489' },
+  cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
+  cardEmoji: { fontSize: 24, marginRight: 12 },
+  cardTitle: { fontSize: 18, fontWeight: '700', color: '#e8e6ff' },
+  cardMuted: { fontSize: 12, color: '#afa9ec', marginTop: 2 },
+  input: { backgroundColor: '#0d0d14', color: '#e8e6ff', borderRadius: 12, padding: 14, textAlignVertical: 'top', fontSize: 14, height: 100, borderWidth: 1, borderColor: '#22223b' },
+  secondaryButton: { backgroundColor: '#534ab7', paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
+  secondaryButtonText: { color: '#e8e6ff', fontWeight: '700', fontSize: 14 },
+  micButton: { backgroundColor: '#2a1a2e', paddingVertical: 14, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: '#ff4e4e' },
+  micButtonText: { color: '#ff4e4e', fontWeight: '700', fontSize: 14 },
+  micButtonActive: { backgroundColor: '#1a2e1e', borderColor: '#4eaaff' },
+  micButtonTextActive: { color: '#4eaaff' },
+  generateButton: { backgroundColor: '#4eaaff', paddingVertical: 16, borderRadius: 14, alignItems: 'center', marginTop: 10, minHeight: 55, justifyContent: 'center', shadowColor: '#4eaaff', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 6, elevation: 5 },
+  disabledButton: { backgroundColor: '#1e3a5f', opacity: 0.6 },
+  generateButtonText: { color: '#0d0d14', fontWeight: '800', fontSize: 16, letterSpacing: 0.5 },
 });

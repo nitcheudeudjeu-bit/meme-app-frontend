@@ -36,9 +36,9 @@ export default function AppNavigator(): React.JSX.Element {
           },
           tabBarActiveTintColor: '#00E676',
           tabBarInactiveTintColor: '#888',
-          headerStyle: { backgroundColor: '#121212' },
+          headerStyle: { backgroundColor: '#0d0d14' },
           headerTintColor: '#FFF',
-          tabBarStyle: { backgroundColor: '#121212', borderTopColor: '#222', height: 60, paddingBottom: 5 },
+          tabBarStyle: { backgroundColor: '#0d0d14', borderTopColor: '#18182a', height: 60, paddingBottom: 5 },
         })}
       >
         <Tab.Screen 
