@@ -29,35 +29,38 @@ export default function ResultScreen(): React.JSX.Element {
     }
   }, [route.params]);
 
-  // 📤 FONCTION AVANCÉE : Partager directement sur WhatsApp
-   // 📤 FONCTION AVANCÉE : Partager directement sur WhatsApp
-  // 📤 FONCTION AVANCÉE : Partager directement sur WhatsApp
+  // 📤 PARTAGE 1 : Envoi ciblé sur WhatsApp
   const handleShareToWhatsApp = async () => {
-    // On ajoute "as any" à la fin de l'objet pour forcer TypeScript à accepter la structure
     const shareOptions = {
-      title: 'Mon Super Mème Multimodal',
-      message: `*${topText.toUpperCase()}*\n\n[Mème Généré par IA]\n\n*${bottomText.toUpperCase()}*`,
+      title: 'Mon Mème Multimodal',
+      message: `*${topText.toUpperCase()}*\n\n[Généré par IA]\n\n*${bottomText.toUpperCase()}*`,
       url: imageUrl, 
       social: Share.Social.WHATSAPP, 
     } as any;
 
     try {
-      // Ouvre directement WhatsApp
       await Share.shareSingle(shareOptions);
     } catch (error: any) {
-      console.log("Erreur shareSingle, ouverture du menu global...", error);
-      try {
-        await Share.open({
-          message: `${topText.toUpperCase()} - ${bottomText.toUpperCase()}`,
-          url: imageUrl,
-        });
-      } catch (err) {
-        console.log("Partage annulé", err);
-      }
+      handleGlobalShare(); // En cas d'échec, on bascule sur le partage général
     }
   };
 
+  // 🌐 PARTAGE 2 : Fonction avancée de partage global sur Internet / Toutes Applications
+  const handleGlobalShare = async () => {
+    const globalOptions = {
+      title: 'Regarde mon mème IA !',
+      message: `${topText.toUpperCase()} \n\n[Créé avec MemeApp Multimodale] \n\n${bottomText.toUpperCase()}`,
+      url: imageUrl, // Envoie le lien de l'image sur internet ou le fichier local
+    };
 
+    try {
+      // Cette méthode ouvre la feuille de partage native du téléphone (Android Chooser)
+      const ShareResponse = await Share.open(globalOptions);
+      console.log("Partage réussi :", ShareResponse);
+    } catch (error) {
+      console.log("Partage annulé ou en échec :", error);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -66,7 +69,7 @@ export default function ResultScreen(): React.JSX.Element {
         <Text style={styles.title}>Laboratoire d'Édition</Text>
         <Text style={styles.subtitle}>Ajustez les punchlines générées par le modèle d'IA</Text>
 
-        {/* IMAGE DU MÈME */}
+        {/* CONTENEUR DU MÈME */}
         <View style={styles.memeContainer}>
           <Image source={{ uri: imageUrl }} style={styles.memeImage} />
           <Text style={[styles.memeText, styles.topMemeText]}>{topText.toUpperCase()}</Text>
@@ -84,10 +87,16 @@ export default function ResultScreen(): React.JSX.Element {
           <TextInput style={styles.input} value={bottomText} onChangeText={setBottomText} placeholderTextColor="#6d6a94" />
         </View>
 
-        {/* BOUTON DE PARTAGE STYLE CYAN PREMIUM */}
-        <TouchableOpacity style={styles.whatsappButton} onPress={handleShareToWhatsApp}>
-          <Text style={styles.whatsappButtonText}>📤 PARTAGER SUR WHATSAPP</Text>
-        </TouchableOpacity>
+        {/* ZONE DES BOUTONS DE PARTAGE DE VOTRE RÔLE (MEMBRE 5) */}
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={[styles.actionButton, styles.whatsappBtn]} onPress={handleShareToWhatsApp}>
+            <Text style={styles.whatsappBtnText}>💬 WhatsApp</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.actionButton, styles.internetBtn]} onPress={handleGlobalShare}>
+            <Text style={styles.internetBtnText}>🌐 Partager sur Internet</Text>
+          </TouchableOpacity>
+        </View>
 
       </ScrollView>
     </SafeAreaView>
@@ -104,10 +113,20 @@ const styles = StyleSheet.create({
   memeText: { position: 'absolute', left: 15, right: 15, color: '#FFF', fontSize: 22, fontWeight: '900', textAlign: 'center', textShadowColor: '#000', textShadowOffset: { width: 2, height: 2 }, textShadowRadius: 5 },
   topMemeText: { top: 20 },
   bottomMemeText: { bottom: 20 },
-  editCard: { backgroundColor: '#18182a', borderRadius: 16, padding: 18, borderWidth: 1.5, borderColor: '#3c3489', marginBottom: 20 },
+  editCard: { backgroundColor: '#18182a', borderRadius: 16, padding: 18, borderWidth: 1.5, borderColor: '#3c3489', marginBottom: 25 },
   cardTitle: { fontSize: 17, fontWeight: '700', color: '#e8e6ff', marginBottom: 18 },
   label: { color: '#7f77dd', fontSize: 11, marginBottom: 6, fontWeight: '700', letterSpacing: 1 },
   input: { backgroundColor: '#0d0d14', color: '#e8e6ff', borderRadius: 10, padding: 12, fontSize: 14, marginBottom: 15, borderWidth: 1, borderColor: '#22223b' },
-  whatsappButton: { backgroundColor: '#4eaaff', paddingVertical: 15, borderRadius: 14, alignItems: 'center', shadowColor: '#4eaaff', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 6, elevation: 5 },
-  whatsappButtonText: { color: '#0d0d14', fontWeight: '800', fontSize: 15, letterSpacing: 0.5 },
+  
+  // Alignement des boutons côte à côte
+  buttonRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 },
+  actionButton: { flex: 0.48, paddingVertical: 15, borderRadius: 14, alignItems: 'center', justifyContent: 'center', elevation: 4 },
+  
+  // Style bouton WhatsApp (Cyan)
+  whatsappBtn: { backgroundColor: '#2a2a3a', borderWidth: 1.5, borderColor: '#4eaaff' },
+  whatsappBtnText: { color: '#4eaaff', fontWeight: '800', fontSize: 14 },
+  
+  // Style bouton Internet (Violet/Indigo éclatant tiré du Splash)
+  internetBtn: { backgroundColor: '#534ab7', shadowColor: '#534ab7', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 6 },
+  internetBtnText: { color: '#e8e6ff', fontWeight: '800', fontSize: 14 },
 });
