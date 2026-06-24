@@ -1,19 +1,20 @@
-import { Platform, PermissionsAndroid, Alert } from 'react-native';
+import { Platform, PermissionsAndroid } from 'react-native';
 
 // Demande la permission galerie selon la version Android
 export async function requestGalleryPermission() {
   if (Platform.OS === 'android') {
-    const androidVersion = Platform.Version;
+    // 💡 SÉCURITÉ : On force la conversion en nombre entier pour éviter les bugs de comparaison
+    const androidVersion = parseInt(Platform.Version, 10);
 
-    // Android 13+ utilise READ_MEDIA_IMAGES
+    // Android 13+ (API 33+) utilise impérativement READ_MEDIA_IMAGES
     const permission =
       androidVersion >= 33
         ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
         : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
 
     const result = await PermissionsAndroid.request(permission, {
-      title: 'Permission galerie',
-      message: "L'app a besoin d'accéder à ta galerie",
+      title: 'Permission Galerie 🖼️',
+      message: "L'application a besoin d'accéder à vos photos pour générer des mèmes par IA.",
       buttonPositive: 'Autoriser',
       buttonNegative: 'Refuser',
     });
@@ -22,7 +23,6 @@ export async function requestGalleryPermission() {
       throw new Error('Permission galerie refusée');
     }
   }
-  // iOS : géré automatiquement par react-native-image-picker
 }
 
 // Demande la permission caméra
@@ -31,8 +31,8 @@ export async function requestCameraPermission() {
     const result = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.CAMERA,
       {
-        title: 'Permission caméra',
-        message: "L'app a besoin d'accéder à ta caméra",
+        title: 'Permission Caméra 📷',
+        message: "L'application a besoin d'accéder à votre appareil photo.",
         buttonPositive: 'Autoriser',
         buttonNegative: 'Refuser',
       }
@@ -42,5 +42,4 @@ export async function requestCameraPermission() {
       throw new Error('Permission caméra refusée');
     }
   }
-  // iOS : géré automatiquement par react-native-image-picker
-      }
+}
